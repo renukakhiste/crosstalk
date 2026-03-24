@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab — P0</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+
+  <!-- Background layer — sits behind everything -->
+  <div id="bg-layer" class="bg-layer"></div>
+  <div id="bg-layer-next" class="bg-layer bg-layer--next"></div>
+
+  <!-- INPUT STATE: shown when no P0 is set -->
+  <div id="input-screen" class="screen input-screen">
+    <div class="input-container">
+      <h1 class="input-question">What's your P0 today?</h1>
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="p0-input"
+          class="p0-input"
+          placeholder="Type the one thing that matters most..."
+          autocomplete="off"
+          spellcheck="false"
+          maxlength="120"
+        />
+        <div class="input-underline"></div>
+      </div>
+      <p class="input-hint">Press Enter to set your priority</p>
+    </div>
+  </div>
+
+  <!-- DISPLAY STATE: shown after P0 is set -->
+  <div id="display-screen" class="screen display-screen hidden">
+    <!-- The P0 text gets rendered here by the typography engine -->
+    <div id="p0-display" class="p0-display"></div>
+
+    <!-- Shuffle + Lock In buttons (visible during shuffle mode) -->
+    <div id="shuffle-controls" class="shuffle-controls hidden">
+      <button id="btn-shuffle" class="btn btn-shuffle">Shuffle</button>
+      <button id="btn-lockin" class="btn btn-lockin">Lock in</button>
+    </div>
+  </div>
+
+  <!-- Photographer credit (Unsplash requirement) -->
+  <div id="photo-credit" class="photo-credit hidden">
+    Photo by <a id="credit-link" href="#" target="_blank" rel="noopener"></a> on
+    <a href="https://unsplash.com/?utm_source=p0&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>
+  </div>
+
+  <!-- Shuffle icon — appears on hover in locked state -->
+  <button id="hover-shuffle" class="hover-shuffle hidden" title="Shuffle background">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 3 21 3 21 8"></polyline>
+      <line x1="4" y1="20" x2="21" y2="3"></line>
+      <polyline points="21 16 21 21 16 21"></polyline>
+      <line x1="15" y1="15" x2="21" y2="21"></line>
+      <line x1="4" y1="4" x2="9" y2="9"></line>
+    </svg>
+  </button>
+
+  <!-- Scripts: order matters — data & lib first, then main logic -->
+  <script src="data/backgrounds.js"></script>
+  <script src="lib/emphasis.js"></script>
+  <script src="newtab.js"></script>
+</body>
+</html>

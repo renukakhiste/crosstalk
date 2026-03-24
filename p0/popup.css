@@ -1,0 +1,80 @@
+/* ==========================================================================
+   P0 — Popup Styles
+   Small, focused popup for changing the P0 via the toolbar icon
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: #faf3e8;
+  -webkit-font-smoothing: antialiased;
+}
+
+.popup-container {
+  padding: 24px 20px 20px;
+}
+
+.popup-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #2a2520;
+  margin-bottom: 16px;
+}
+
+.popup-input-wrapper {
+  width: 100%;
+  border-bottom: 1.5px solid rgba(42, 37, 32, 0.2);
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.popup-input-wrapper:focus-within {
+  border-color: rgba(42, 37, 32, 0.5);
+}
+
+.popup-input {
+  width: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2a2520;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 6px 0;
+}
+
+.popup-input::placeholder {
+  color: #a09080;
+  font-weight: 400;
+}
+
+.popup-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #a09080;
+  letter-spacing: 0.02em;
+}
+
+.popup-current {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(42, 37, 32, 0.08);
+  font-size: 12px;
+  color: #8a7a68;
+  line-height: 1.4;
+}
+
+.popup-current:empty {
+  display: none;
+}

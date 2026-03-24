@@ -1,0 +1,571 @@
+/* ==========================================================================
+   P0 — New Tab Styles
+   Everything is layered: background → display text → controls
+   ========================================================================== */
+
+/* Custom properties — single source of truth for spacing & timing */
+:root {
+  --transition-fast: 0.3s ease;
+  --transition-medium: 0.5s ease;
+  --transition-slow: 0.8s ease;
+  --padding-page: clamp(40px, 6vw, 100px);
+}
+
+/* Reset & base */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Background Layers
+   Two layers allow cross-fade transitions between backgrounds
+   ========================================================================== */
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  transition: opacity var(--transition-medium);
+  /* Default fallback — warm cream */
+  background: linear-gradient(160deg, #faf3e8, #f0e4d1, #e8d5b8);
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-layer--next {
+  opacity: 0;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Screen States
+   ========================================================================== */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--transition-medium);
+}
+
+.hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   Input Screen — "What's your P0 today?"
+   ========================================================================== */
+
+.input-screen {
+  flex-direction: column;
+}
+
+.input-container {
+  width: 90%;
+  max-width: 680px;
+  text-align: center;
+}
+
+.input-question {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 48px);
+  color: #2a2520;
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.p0-input {
+  width: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 600;
+  color: #2a2520;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  text-align: center;
+}
+
+.p0-input::placeholder {
+  color: #a09080;
+  font-weight: 400;
+}
+
+.input-underline {
+  height: 2px;
+  background: #2a2520;
+  opacity: 0.2;
+  transition: opacity var(--transition-fast);
+  border-radius: 1px;
+}
+
+.p0-input:focus ~ .input-underline {
+  opacity: 0.5;
+}
+
+.input-hint {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #a09080;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Display Screen — The P0 shown as editorial typography
+   ========================================================================== */
+
+.display-screen {
+  flex-direction: column;
+  padding: var(--padding-page);
+}
+
+.p0-display {
+  width: 100%;
+  max-width: 1200px;
+  transition: opacity var(--transition-fast);
+  /* Individual typography treatments override alignment & positioning */
+}
+
+/* ==========================================================================
+   Typography Treatments
+   Each treatment is a class that gets applied to #p0-display.
+   The emphasis engine wraps words in spans with data-emphasis attributes.
+   ========================================================================== */
+
+/* Shared emphasis styles — these get combined with treatment-specific rules */
+.p0-display [data-emphasis="power"] {
+  display: inline;
+}
+
+.p0-display [data-emphasis="quiet"] {
+  display: inline;
+}
+
+.p0-display [data-emphasis="normal"] {
+  display: inline;
+}
+
+/* Line break elements between phrase groups */
+.p0-display .line-break {
+  display: block;
+  height: 0;
+}
+
+/* --- Treatment 0: Bold Stacked Serif (Playfair Display) --- */
+.typo-0 {
+  font-family: 'Playfair Display', serif;
+  text-align: left;
+  line-height: 0.92;
+}
+.typo-0 [data-emphasis="power"] {
+  font-weight: 900;
+  font-size: clamp(48px, 8vw, 120px);
+  display: block;
+  text-transform: lowercase;
+}
+.typo-0 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(20px, 2.5vw, 36px);
+  opacity: 0.6;
+  display: block;
+  margin-bottom: 8px;
+}
+.typo-0 [data-emphasis="normal"] {
+  font-weight: 700;
+  font-size: clamp(32px, 5vw, 72px);
+  display: block;
+}
+
+/* --- Treatment 1: Mixed-Weight Editorial Serif (DM Serif Display) --- */
+.typo-1 {
+  font-family: 'DM Serif Display', serif;
+  text-align: left;
+  line-height: 1.1;
+}
+.typo-1 [data-emphasis="power"] {
+  font-size: clamp(44px, 7vw, 110px);
+  font-style: italic;
+  display: inline;
+}
+.typo-1 [data-emphasis="quiet"] {
+  font-size: clamp(18px, 2vw, 30px);
+  font-style: normal;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 4px;
+}
+.typo-1 [data-emphasis="normal"] {
+  font-size: clamp(28px, 4vw, 60px);
+  font-style: normal;
+  display: inline;
+}
+
+/* --- Treatment 2: Heavy Geometric Sans (Plus Jakarta Sans) --- */
+.typo-2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: left;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+}
+.typo-2 [data-emphasis="power"] {
+  font-weight: 800;
+  font-size: clamp(44px, 7.5vw, 115px);
+  display: block;
+}
+.typo-2 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-size: clamp(16px, 2vw, 28px);
+  opacity: 0.45;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.typo-2 [data-emphasis="normal"] {
+  font-weight: 600;
+  font-size: clamp(28px, 4.5vw, 68px);
+  display: block;
+}
+
+/* --- Treatment 3: Elegant Garamond (Cormorant Garamond) --- */
+.typo-3 {
+  font-family: 'Cormorant Garamond', serif;
+  text-align: center;
+  line-height: 1.05;
+}
+.typo-3 [data-emphasis="power"] {
+  font-weight: 700;
+  font-size: clamp(48px, 8vw, 130px);
+  display: block;
+  letter-spacing: 0.02em;
+}
+.typo-3 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(20px, 2.5vw, 34px);
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 6px;
+}
+.typo-3 [data-emphasis="normal"] {
+  font-weight: 600;
+  font-size: clamp(30px, 4.5vw, 70px);
+  display: block;
+}
+
+/* --- Treatment 4: Characterful Variable Serif (Fraunces) --- */
+.typo-4 {
+  font-family: 'Fraunces', serif;
+  text-align: left;
+  line-height: 1.0;
+}
+.typo-4 [data-emphasis="power"] {
+  font-weight: 800;
+  font-size: clamp(42px, 7vw, 110px);
+  display: block;
+}
+.typo-4 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(18px, 2.2vw, 32px);
+  opacity: 0.55;
+  display: block;
+  margin-bottom: 6px;
+}
+.typo-4 [data-emphasis="normal"] {
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 65px);
+  display: block;
+  font-style: italic;
+}
+
+/* --- Treatment 5: Condensed All-Caps Poster (Bebas Neue) --- */
+.typo-5 {
+  font-family: 'Bebas Neue', sans-serif;
+  text-align: left;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.typo-5 [data-emphasis="power"] {
+  font-size: clamp(56px, 10vw, 160px);
+  letter-spacing: 0.04em;
+  display: block;
+}
+.typo-5 [data-emphasis="quiet"] {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  font-size: clamp(14px, 1.6vw, 22px);
+  letter-spacing: 0.15em;
+  opacity: 0.45;
+  display: block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.typo-5 [data-emphasis="normal"] {
+  font-size: clamp(36px, 6vw, 100px);
+  letter-spacing: 0.03em;
+  display: block;
+}
+
+/* --- Treatment 6: Lora Bold Serif --- */
+.typo-6 {
+  font-family: 'Lora', serif;
+  text-align: right;
+  line-height: 1.05;
+}
+.typo-6 [data-emphasis="power"] {
+  font-weight: 700;
+  font-size: clamp(44px, 7vw, 110px);
+  display: block;
+}
+.typo-6 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 30px);
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 6px;
+}
+.typo-6 [data-emphasis="normal"] {
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 64px);
+  display: block;
+}
+
+/* --- Treatment 7: Modern Bold Sans (Outfit) --- */
+.typo-7 {
+  font-family: 'Outfit', sans-serif;
+  text-align: center;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+}
+.typo-7 [data-emphasis="power"] {
+  font-weight: 700;
+  font-size: clamp(46px, 7.5vw, 120px);
+  display: block;
+}
+.typo-7 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-size: clamp(16px, 2vw, 26px);
+  opacity: 0.4;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+.typo-7 [data-emphasis="normal"] {
+  font-weight: 600;
+  font-size: clamp(28px, 4vw, 64px);
+  display: block;
+}
+
+/* --- Treatment 8: Classic Italic Contrast (Cormorant Garamond) --- */
+.typo-8 {
+  font-family: 'Cormorant Garamond', serif;
+  text-align: left;
+  line-height: 1.08;
+}
+.typo-8 [data-emphasis="power"] {
+  font-weight: 700;
+  font-size: clamp(46px, 7.5vw, 115px);
+  display: block;
+}
+.typo-8 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(22px, 2.8vw, 38px);
+  opacity: 0.55;
+  display: inline;
+}
+.typo-8 [data-emphasis="normal"] {
+  font-weight: 600;
+  font-style: italic;
+  font-size: clamp(30px, 4.5vw, 68px);
+  display: block;
+}
+
+/* --- Treatment 9: Tight Bold Display (Space Grotesk) --- */
+.typo-9 {
+  font-family: 'Space Grotesk', sans-serif;
+  text-align: left;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+.typo-9 [data-emphasis="power"] {
+  font-weight: 700;
+  font-size: clamp(46px, 8vw, 125px);
+  display: block;
+}
+.typo-9 [data-emphasis="quiet"] {
+  font-weight: 400;
+  font-size: clamp(15px, 1.8vw, 24px);
+  opacity: 0.4;
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+}
+.typo-9 [data-emphasis="normal"] {
+  font-weight: 600;
+  font-size: clamp(28px, 4.5vw, 70px);
+  display: block;
+}
+
+/* ==========================================================================
+   Shuffle Controls
+   ========================================================================== */
+
+.shuffle-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 40px;
+  transition: opacity var(--transition-medium);
+  z-index: 20;
+}
+
+.btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 0.02em;
+}
+
+.btn-shuffle {
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-shuffle:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.03);
+}
+
+.btn-lockin {
+  background: rgba(0, 0, 0, 0.7);
+  color: #f0ebdc;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-lockin:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.03);
+}
+
+/* Adapt button colors for dark backgrounds */
+.dark-bg .btn-shuffle {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-bg .btn-lockin {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1a1a1a;
+}
+
+/* ==========================================================================
+   Photo Credit (Unsplash attribution)
+   ========================================================================== */
+
+.photo-credit {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  z-index: 30;
+  font-size: 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+
+.photo-credit:hover {
+  opacity: 0.7;
+}
+
+.photo-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ==========================================================================
+   Hover Shuffle Button (bottom-right, hidden by default)
+   ========================================================================== */
+
+.hover-shuffle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Only show on hover over the body when in locked state */
+body.locked-state .hover-shuffle {
+  pointer-events: auto !important;
+}
+
+body.locked-state:hover .hover-shuffle {
+  opacity: 0.5;
+}
+
+body.locked-state .hover-shuffle:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   Utility: dark-bg modifier applied to body when background is dark
+   Controls text colors globally
+   ========================================================================== */
+
+body {
+  color: #2a2520;
+  transition: color var(--transition-medium);
+}
+
+body.dark-bg {
+  color: #f0ebdc;
+}
