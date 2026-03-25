@@ -1,571 +1,442 @@
-/* ==========================================================================
-   P0 — New Tab Styles
-   Everything is layered: background → display text → controls
-   ========================================================================== */
+/* ======================================================================
+   P0 — Typography-forward new tab
+   No clock. No date. No icons. No quotes. Just your priority.
+   ====================================================================== */
 
-/* Custom properties — single source of truth for spacing & timing */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --transition-fast: 0.3s ease;
-  --transition-medium: 0.5s ease;
-  --transition-slow: 0.8s ease;
-  --padding-page: clamp(40px, 6vw, 100px);
-}
-
-/* Reset & base */
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --text-main: #1a1a2e;
+  --text-muted: rgba(26, 26, 46, 0.5);
+  --text-inverse: #f0ebdc;
+  --ui-bg: rgba(0, 0, 0, 0.06);
+  --ui-border: rgba(0, 0, 0, 0.1);
+  --ui-hover: rgba(0, 0, 0, 0.1);
 }
 
 html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ==========================================================================
-   Background Layers
-   Two layers allow cross-fade transitions between backgrounds
-   ========================================================================== */
+body {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+body.ready { opacity: 1; }
 
-.bg-layer {
+/* ======================================================================
+   Background
+   ====================================================================== */
+
+#bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  transition: opacity var(--transition-medium);
-  /* Default fallback — warm cream */
   background: linear-gradient(160deg, #faf3e8, #f0e4d1, #e8d5b8);
-  background-size: cover;
-  background-position: center;
 }
 
-.bg-layer--next {
-  opacity: 0;
-  z-index: 1;
-}
-
-/* ==========================================================================
-   Screen States
-   ========================================================================== */
-
-.screen {
+#bg-overlay {
   position: fixed;
   inset: 0;
-  z-index: 10;
+  z-index: 1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+#bg-overlay.active { opacity: 1; }
+
+/* ======================================================================
+   States
+   ====================================================================== */
+
+.state {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity var(--transition-medium);
+  padding: clamp(2rem, 6vw, 5rem);
 }
+.state.hidden { display: none; }
 
-.hidden {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
+/* ======================================================================
+   State 1: Input
+   ====================================================================== */
 
-/* ==========================================================================
-   Input Screen — "What's your P0 today?"
-   ========================================================================== */
-
-.input-screen {
-  flex-direction: column;
-}
-
-.input-container {
-  width: 90%;
-  max-width: 680px;
+.input-wrap {
   text-align: center;
-}
-
-.input-question {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: clamp(28px, 4vw, 48px);
-  color: #2a2520;
-  margin-bottom: 40px;
-  letter-spacing: -0.02em;
-}
-
-.input-wrapper {
-  position: relative;
   width: 100%;
+  max-width: 650px;
 }
 
-.p0-input {
+.input-prompt {
+  font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  font-weight: 500;
+  color: #3a3530;
+  margin-bottom: 2.5rem;
+  opacity: 0.75;
+}
+
+#task-input {
   width: 100%;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(20px, 2.5vw, 28px);
-  font-weight: 600;
+  font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  font-weight: 400;
   color: #2a2520;
   background: transparent;
   border: none;
-  outline: none;
-  padding: 12px 0;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+  padding: 0.75rem 0;
   text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
 }
-
-.p0-input::placeholder {
-  color: #a09080;
+#task-input:focus {
+  border-bottom-color: rgba(0, 0, 0, 0.3);
+}
+#task-input::placeholder {
+  color: rgba(0, 0, 0, 0.22);
   font-weight: 400;
 }
 
-.input-underline {
-  height: 2px;
-  background: #2a2520;
-  opacity: 0.2;
-  transition: opacity var(--transition-fast);
-  border-radius: 1px;
-}
+/* ======================================================================
+   Typography Display (shared by shuffle + locked)
+   ====================================================================== */
 
-.p0-input:focus ~ .input-underline {
-  opacity: 0.5;
-}
-
-.input-hint {
-  margin-top: 16px;
-  font-size: 13px;
-  color: #a09080;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-}
-
-/* ==========================================================================
-   Display Screen — The P0 shown as editorial typography
-   ========================================================================== */
-
-.display-screen {
-  flex-direction: column;
-  padding: var(--padding-page);
-}
-
-.p0-display {
+.typo-wrap {
+  max-width: 1000px;
   width: 100%;
-  max-width: 1200px;
-  transition: opacity var(--transition-fast);
-  /* Individual typography treatments override alignment & positioning */
+  transition: opacity 0.25s ease;
+}
+.typo-wrap.fading { opacity: 0; }
+
+/* The three-part emphasis structure */
+.p0-before, .p0-after {
+  transition: color 0.3s;
+}
+.p0-main {
+  transition: color 0.3s;
 }
 
-/* ==========================================================================
-   Typography Treatments
-   Each treatment is a class that gets applied to #p0-display.
-   The emphasis engine wraps words in spans with data-emphasis attributes.
-   ========================================================================== */
+/* ======================================================================
+   Typography Treatment 0: Playfair Editorial
+   Left-aligned, stacked, tight line-height, lowercase
+   ====================================================================== */
 
-/* Shared emphasis styles — these get combined with treatment-specific rules */
-.p0-display [data-emphasis="power"] {
-  display: inline;
-}
-
-.p0-display [data-emphasis="quiet"] {
-  display: inline;
-}
-
-.p0-display [data-emphasis="normal"] {
-  display: inline;
-}
-
-/* Line break elements between phrase groups */
-.p0-display .line-break {
-  display: block;
-  height: 0;
-}
-
-/* --- Treatment 0: Bold Stacked Serif (Playfair Display) --- */
-.typo-0 {
+.typo-0 { text-align: left; }
+.typo-0 .p0-before {
   font-family: 'Playfair Display', serif;
-  text-align: left;
-  line-height: 0.92;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 0.4rem;
 }
-.typo-0 [data-emphasis="power"] {
+.typo-0 .p0-main {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
   font-weight: 900;
-  font-size: clamp(48px, 8vw, 120px);
-  display: block;
+  line-height: 0.92;
   text-transform: lowercase;
 }
-.typo-0 [data-emphasis="quiet"] {
+.typo-0 .p0-after {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
   font-weight: 400;
   font-style: italic;
-  font-size: clamp(20px, 2.5vw, 36px);
-  opacity: 0.6;
-  display: block;
-  margin-bottom: 8px;
-}
-.typo-0 [data-emphasis="normal"] {
-  font-weight: 700;
-  font-size: clamp(32px, 5vw, 72px);
-  display: block;
+  margin-top: 0.6rem;
 }
 
-/* --- Treatment 1: Mixed-Weight Editorial Serif (DM Serif Display) --- */
-.typo-1 {
+/* ======================================================================
+   Typography Treatment 1: DM Serif Mixed
+   Center, large italic main, delicate secondary
+   ====================================================================== */
+
+.typo-1 { text-align: center; }
+.typo-1 .p0-before {
   font-family: 'DM Serif Display', serif;
-  text-align: left;
-  line-height: 1.1;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  margin-bottom: 0.3rem;
 }
-.typo-1 [data-emphasis="power"] {
-  font-size: clamp(44px, 7vw, 110px);
+.typo-1 .p0-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(3.5rem, 8.5vw, 6.5rem);
   font-style: italic;
-  display: inline;
+  line-height: 1;
 }
-.typo-1 [data-emphasis="quiet"] {
-  font-size: clamp(18px, 2vw, 30px);
-  font-style: normal;
-  opacity: 0.5;
-  display: block;
-  margin-bottom: 4px;
-}
-.typo-1 [data-emphasis="normal"] {
-  font-size: clamp(28px, 4vw, 60px);
-  font-style: normal;
-  display: inline;
+.typo-1 .p0-after {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  font-weight: 400;
+  margin-top: 0.5rem;
 }
 
-/* --- Treatment 2: Heavy Geometric Sans (Plus Jakarta Sans) --- */
-.typo-2 {
+/* ======================================================================
+   Typography Treatment 2: Jakarta Punch
+   Centered, bold geometric sans, uppercase, punchy
+   ====================================================================== */
+
+.typo-2 { text-align: center; }
+.typo-2 .p0-before {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  text-align: left;
-  line-height: 1.0;
-  letter-spacing: -0.03em;
-}
-.typo-2 [data-emphasis="power"] {
-  font-weight: 800;
-  font-size: clamp(44px, 7.5vw, 115px);
-  display: block;
-}
-.typo-2 [data-emphasis="quiet"] {
-  font-weight: 400;
-  font-size: clamp(16px, 2vw, 28px);
-  opacity: 0.45;
-  display: block;
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
+  font-size: clamp(0.75rem, 1.4vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
+  margin-bottom: 1rem;
 }
-.typo-2 [data-emphasis="normal"] {
-  font-weight: 600;
-  font-size: clamp(28px, 4.5vw, 68px);
-  display: block;
-}
-
-/* --- Treatment 3: Elegant Garamond (Cormorant Garamond) --- */
-.typo-3 {
-  font-family: 'Cormorant Garamond', serif;
-  text-align: center;
-  line-height: 1.05;
-}
-.typo-3 [data-emphasis="power"] {
-  font-weight: 700;
-  font-size: clamp(48px, 8vw, 130px);
-  display: block;
-  letter-spacing: 0.02em;
-}
-.typo-3 [data-emphasis="quiet"] {
-  font-weight: 400;
-  font-style: italic;
-  font-size: clamp(20px, 2.5vw, 34px);
-  opacity: 0.5;
-  display: block;
-  margin-bottom: 6px;
-}
-.typo-3 [data-emphasis="normal"] {
-  font-weight: 600;
-  font-size: clamp(30px, 4.5vw, 70px);
-  display: block;
-}
-
-/* --- Treatment 4: Characterful Variable Serif (Fraunces) --- */
-.typo-4 {
-  font-family: 'Fraunces', serif;
-  text-align: left;
-  line-height: 1.0;
-}
-.typo-4 [data-emphasis="power"] {
+.typo-2 .p0-main {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
   font-weight: 800;
-  font-size: clamp(42px, 7vw, 110px);
-  display: block;
-}
-.typo-4 [data-emphasis="quiet"] {
-  font-weight: 400;
-  font-style: italic;
-  font-size: clamp(18px, 2.2vw, 32px);
-  opacity: 0.55;
-  display: block;
-  margin-bottom: 6px;
-}
-.typo-4 [data-emphasis="normal"] {
-  font-weight: 700;
-  font-size: clamp(28px, 4vw, 65px);
-  display: block;
-  font-style: italic;
-}
-
-/* --- Treatment 5: Condensed All-Caps Poster (Bebas Neue) --- */
-.typo-5 {
-  font-family: 'Bebas Neue', sans-serif;
-  text-align: left;
   line-height: 0.95;
   text-transform: uppercase;
-}
-.typo-5 [data-emphasis="power"] {
-  font-size: clamp(56px, 10vw, 160px);
-  letter-spacing: 0.04em;
-  display: block;
-}
-.typo-5 [data-emphasis="quiet"] {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 400;
-  font-size: clamp(14px, 1.6vw, 22px);
-  letter-spacing: 0.15em;
-  opacity: 0.45;
-  display: block;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-.typo-5 [data-emphasis="normal"] {
-  font-size: clamp(36px, 6vw, 100px);
-  letter-spacing: 0.03em;
-  display: block;
-}
-
-/* --- Treatment 6: Lora Bold Serif --- */
-.typo-6 {
-  font-family: 'Lora', serif;
-  text-align: right;
-  line-height: 1.05;
-}
-.typo-6 [data-emphasis="power"] {
-  font-weight: 700;
-  font-size: clamp(44px, 7vw, 110px);
-  display: block;
-}
-.typo-6 [data-emphasis="quiet"] {
-  font-weight: 400;
-  font-style: italic;
-  font-size: clamp(18px, 2vw, 30px);
-  opacity: 0.5;
-  display: block;
-  margin-bottom: 6px;
-}
-.typo-6 [data-emphasis="normal"] {
-  font-weight: 700;
-  font-size: clamp(28px, 4vw, 64px);
-  display: block;
-}
-
-/* --- Treatment 7: Modern Bold Sans (Outfit) --- */
-.typo-7 {
-  font-family: 'Outfit', sans-serif;
-  text-align: center;
-  line-height: 1.0;
   letter-spacing: -0.02em;
 }
-.typo-7 [data-emphasis="power"] {
-  font-weight: 700;
-  font-size: clamp(46px, 7.5vw, 120px);
-  display: block;
-}
-.typo-7 [data-emphasis="quiet"] {
-  font-weight: 400;
-  font-size: clamp(16px, 2vw, 26px);
-  opacity: 0.4;
-  display: block;
-  margin-bottom: 8px;
-  letter-spacing: 0.08em;
-}
-.typo-7 [data-emphasis="normal"] {
-  font-weight: 600;
-  font-size: clamp(28px, 4vw, 64px);
-  display: block;
+.typo-2 .p0-after {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(0.75rem, 1.4vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-top: 1rem;
 }
 
-/* --- Treatment 8: Classic Italic Contrast (Cormorant Garamond) --- */
-.typo-8 {
+/* ======================================================================
+   Typography Treatment 3: Cormorant Elegant
+   Centered, wide elegant serif
+   ====================================================================== */
+
+.typo-3 { text-align: center; }
+.typo-3 .p0-before {
   font-family: 'Cormorant Garamond', serif;
-  text-align: left;
-  line-height: 1.08;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
 }
-.typo-8 [data-emphasis="power"] {
+.typo-3 .p0-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(4rem, 10vw, 8rem);
   font-weight: 700;
-  font-size: clamp(46px, 7.5vw, 115px);
-  display: block;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
 }
-.typo-8 [data-emphasis="quiet"] {
-  font-weight: 400;
+.typo-3 .p0-after {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-weight: 300;
   font-style: italic;
-  font-size: clamp(22px, 2.8vw, 38px);
-  opacity: 0.55;
-  display: inline;
-}
-.typo-8 [data-emphasis="normal"] {
-  font-weight: 600;
-  font-style: italic;
-  font-size: clamp(30px, 4.5vw, 68px);
-  display: block;
+  letter-spacing: 0.1em;
+  margin-top: 0.6rem;
 }
 
-/* --- Treatment 9: Tight Bold Display (Space Grotesk) --- */
-.typo-9 {
-  font-family: 'Space Grotesk', sans-serif;
-  text-align: left;
+/* ======================================================================
+   Typography Treatment 4: Fraunces Organic
+   Left-aligned, organic serif, italic secondaries
+   ====================================================================== */
+
+.typo-4 { text-align: left; }
+.typo-4 .p0-before {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 0.4rem;
+}
+.typo-4 .p0-main {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(3.5rem, 8.5vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+}
+.typo-4 .p0-after {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* ======================================================================
+   Typography Treatment 5: Bebas Condensed
+   All caps, tall condensed, wide letter-spacing
+   ====================================================================== */
+
+.typo-5 { text-align: center; }
+.typo-5 .p0-before {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.4rem;
+}
+.typo-5 .p0-main {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(5rem, 13vw, 10rem);
+  line-height: 0.85;
+  letter-spacing: 0.05em;
+}
+.typo-5 .p0-after {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  letter-spacing: 0.3em;
+  margin-top: 0.5rem;
+}
+
+/* ======================================================================
+   Typography Treatment 6: Lora Editorial
+   Left-aligned, warm editorial serif
+   ====================================================================== */
+
+.typo-6 { text-align: left; }
+.typo-6 .p0-before {
+  font-family: 'Lora', serif;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 0.4rem;
+}
+.typo-6 .p0-main {
+  font-family: 'Lora', serif;
+  font-size: clamp(3.5rem, 8.5vw, 6rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+.typo-6 .p0-after {
+  font-family: 'Lora', serif;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* ======================================================================
+   Typography Treatment 7: Outfit Heavy
+   Centered, rounded bold sans, friendly but heavy
+   ====================================================================== */
+
+.typo-7 { text-align: center; }
+.typo-7 .p0-before {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  font-weight: 400;
+  margin-bottom: 0.7rem;
+}
+.typo-7 .p0-main {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 700;
   line-height: 0.95;
-  letter-spacing: -0.04em;
 }
-.typo-9 [data-emphasis="power"] {
-  font-weight: 700;
-  font-size: clamp(46px, 8vw, 125px);
-  display: block;
-}
-.typo-9 [data-emphasis="quiet"] {
+.typo-7 .p0-after {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
   font-weight: 400;
-  font-size: clamp(15px, 1.8vw, 24px);
-  opacity: 0.4;
-  display: block;
-  margin-bottom: 8px;
-  letter-spacing: 0.06em;
-}
-.typo-9 [data-emphasis="normal"] {
-  font-weight: 600;
-  font-size: clamp(28px, 4.5vw, 70px);
-  display: block;
+  margin-top: 0.7rem;
 }
 
-/* ==========================================================================
+/* ======================================================================
    Shuffle Controls
-   ========================================================================== */
+   ====================================================================== */
 
 .shuffle-controls {
+  position: fixed;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 12px;
-  margin-top: 40px;
-  transition: opacity var(--transition-medium);
-  z-index: 20;
+  gap: 0.75rem;
+  z-index: 10;
 }
 
 .btn {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 12px 28px;
-  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.7rem 2rem;
   border-radius: 100px;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  letter-spacing: 0.02em;
+  transition: all 0.2s;
+  border: 1px solid var(--ui-border);
 }
 
 .btn-shuffle {
-  background: rgba(255, 255, 255, 0.15);
-  color: inherit;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--ui-bg);
+  color: var(--text-main);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
-
 .btn-shuffle:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.03);
+  background: var(--ui-hover);
 }
 
 .btn-lockin {
-  background: rgba(0, 0, 0, 0.7);
-  color: #f0ebdc;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--text-main);
+  color: var(--text-inverse);
+  border-color: transparent;
 }
+.btn-lockin:hover { opacity: 0.88; }
 
-.btn-lockin:hover {
-  background: rgba(0, 0, 0, 0.85);
-  transform: scale(1.03);
-}
-
-/* Adapt button colors for dark backgrounds */
-.dark-bg .btn-shuffle {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.dark-bg .btn-lockin {
-  background: rgba(255, 255, 255, 0.85);
-  color: #1a1a1a;
-}
-
-/* ==========================================================================
-   Photo Credit (Unsplash attribution)
-   ========================================================================== */
-
-.photo-credit {
-  position: fixed;
-  bottom: 16px;
-  right: 20px;
-  z-index: 30;
-  font-size: 10px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  opacity: 0.4;
-  transition: opacity var(--transition-fast);
-}
-
-.photo-credit:hover {
-  opacity: 0.7;
-}
-
-.photo-credit a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-/* ==========================================================================
-   Hover Shuffle Button (bottom-right, hidden by default)
-   ========================================================================== */
+/* ======================================================================
+   Hover Shuffle Button (locked state)
+   ====================================================================== */
 
 .hover-shuffle {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 30;
-  width: 40px;
-  height: 40px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: inherit;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-main);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity var(--transition-fast), background var(--transition-fast);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, background 0.2s;
 }
-
-/* Only show on hover over the body when in locked state */
-body.locked-state .hover-shuffle {
-  pointer-events: auto !important;
-}
-
-body.locked-state:hover .hover-shuffle {
+.hover-shuffle.visible {
   opacity: 0.5;
+  pointer-events: auto;
 }
-
-body.locked-state .hover-shuffle:hover {
+.hover-shuffle.visible:hover {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--ui-hover);
 }
 
-/* ==========================================================================
-   Utility: dark-bg modifier applied to body when background is dark
-   Controls text colors globally
-   ========================================================================== */
+/* ======================================================================
+   Photo Credit
+   ====================================================================== */
 
-body {
-  color: #2a2520;
-  transition: color var(--transition-medium);
+.photo-credit {
+  position: fixed;
+  bottom: 0.8rem;
+  left: 1.5rem;
+  z-index: 10;
+  font-size: 0.65rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text-muted);
+  transition: opacity 0.3s;
 }
-
-body.dark-bg {
-  color: #f0ebdc;
+.photo-credit a {
+  color: inherit;
+  text-decoration: none;
 }
+.photo-credit a:hover {
+  text-decoration: underline;
+}
+.photo-credit.hidden { display: none; }

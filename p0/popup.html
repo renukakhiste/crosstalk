@@ -2,27 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>P0</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: #faf3e8;
+      color: #2a2520;
+      width: 300px;
+      padding: 1.5rem;
+    }
+    .label {
+      font-size: 0.6rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(42,37,32,0.35);
+      margin-bottom: 0.75rem;
+    }
+    .task {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 1rem;
+    }
+    .empty {
+      font-size: 0.9rem;
+      color: rgba(42,37,32,0.4);
+      font-style: italic;
+    }
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .popup-input {
+      flex: 1;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.6);
+      outline: none;
+      color: #2a2520;
+    }
+    .popup-input:focus { border-color: rgba(0,0,0,0.25); }
+    .popup-input::placeholder { color: rgba(0,0,0,0.25); }
+    .clear-btn {
+      padding: 0.4rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.7rem;
+      font-weight: 500;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(42,37,32,0.45);
+      cursor: pointer;
+    }
+    .clear-btn:hover { background: rgba(0,0,0,0.04); }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-  <div class="popup-container">
-    <h1 class="popup-title">What's your P0 today?</h1>
-    <div class="popup-input-wrapper">
-      <input
-        type="text"
-        id="popup-input"
-        class="popup-input"
-        placeholder="Type your one thing..."
-        autocomplete="off"
-        spellcheck="false"
-        maxlength="120"
-      />
-    </div>
-    <p class="popup-hint">Press Enter to update</p>
-    <p id="popup-current" class="popup-current"></p>
+  <p class="label">Today's P0</p>
+  <p class="task" id="task-text"></p>
+  <p class="empty hidden" id="empty-text">Open a new tab to set your P0</p>
+  <div class="input-row">
+    <input type="text" class="popup-input" id="popup-input" placeholder="Change your P0..." maxlength="120" spellcheck="false">
   </div>
+  <button class="clear-btn hidden" id="clear-btn" style="margin-top:0.75rem">Clear &amp; reset</button>
   <script src="popup.js"></script>
 </body>
 </html>

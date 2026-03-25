@@ -1,48 +1,32 @@
 /**
  * P0 — Background Service Worker
- *
- * Handles the daily reset alarm. Every 60 minutes, checks if the date
- * has changed. If it has, clears the saved P0 so the user sees the
- * input screen fresh the next morning.
+ * Handles daily reset via alarm.
  */
 
 const ALARM_NAME = 'p0-daily-reset';
 
-// Set up the alarm on install and on browser start
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create(ALARM_NAME, {
-    delayInMinutes: 1,          // First check 1 minute after install
-    periodInMinutes: 60         // Then every hour
-  });
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.alarms.create(ALARM_NAME, { delayInMinutes: 1, periodInMinutes: 60 });
 });
 
-// Also ensure the alarm exists on startup (in case it was cleared)
-chrome.runtime.onStartup.addListener(() => {
-  chrome.alarms.create(ALARM_NAME, {
-    delayInMinutes: 1,
-    periodInMinutes: 60
-  });
+chrome.runtime.onStartup.addListener(function() {
+  chrome.alarms.create(ALARM_NAME, { delayInMinutes: 1, periodInMinutes: 60 });
 });
 
-// When the alarm fires, check if the date has rolled over
-chrome.alarms.onAlarm.addListener(async (alarm) => {
+chrome.alarms.onAlarm.addListener(async function(alarm) {
   if (alarm.name !== ALARM_NAME) return;
 
-  const data = await chrome.storage.local.get('lastSetDate');
-  if (!data.lastSetDate) return;   // Nothing to reset
+  var data = await chrome.storage.local.get('p0_date');
+  if (!data.p0_date) return;
 
-  const today = getTodayString();
-  if (data.lastSetDate !== today) {
-    // New day! Clear the P0 so the user gets a fresh start
+  var d = new Date();
+  var today = d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+
+  if (data.p0_date !== today) {
     await chrome.storage.local.remove([
-      'p0Text',
-      'lockedBackground',
-      'lockedTypography'
+      'p0_task', 'p0_date', 'p0_locked', 'p0_bg', 'p0_treatment'
     ]);
   }
 });
-
-function getTodayString() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}

@@ -1,57 +1,57 @@
-/**
- * P0 — Popup Logic
- *
- * Allows the user to change their P0 mid-day from the Chrome toolbar.
- * Sends a message to any open new tab pages so they update instantly.
- */
+var $taskText = document.getElementById('task-text');
+var $emptyText = document.getElementById('empty-text');
+var $input = document.getElementById('popup-input');
+var $clearBtn = document.getElementById('clear-btn');
 
-const $input = document.getElementById('popup-input');
-const $current = document.getElementById('popup-current');
-
-// Show the current P0 if one is set
-async function loadCurrent() {
-  const data = await chrome.storage.local.get('p0Text');
-  if (data.p0Text) {
-    $current.textContent = `Current P0: "${data.p0Text}"`;
-  }
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 }
 
-// Handle Enter key — save the new P0 and notify new tab pages
-$input.addEventListener('keydown', async (e) => {
+// Load current
+chrome.storage.local.get(['p0_task', 'p0_date'], function(data) {
+  if (data.p0_date === todayKey() && data.p0_task) {
+    $taskText.textContent = data.p0_task;
+    $clearBtn.classList.remove('hidden');
+  } else {
+    $taskText.classList.add('hidden');
+    $emptyText.classList.remove('hidden');
+  }
+});
+
+// Enter to update
+$input.addEventListener('keydown', function(e) {
   if (e.key !== 'Enter') return;
+  var text = $input.value.trim();
+  if (!text) return;
 
-  const text = $input.value.trim();
-  if (text.length === 0) return;
+  chrome.storage.local.set({ p0_task: text, p0_date: todayKey(), p0_locked: false });
+  chrome.storage.local.remove(['p0_bg', 'p0_treatment']);
 
-  // Save to storage
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-  await chrome.storage.local.set({
-    p0Text: text,
-    lastSetDate: dateStr
-  });
-
-  // Clear locked state so the new tab re-enters shuffle mode
-  await chrome.storage.local.remove(['lockedBackground', 'lockedTypography']);
-
-  // Notify any open new tab pages
-  const tabs = await chrome.tabs.query({});
-  tabs.forEach(tab => {
-    // Send to all tabs — the new tab page will handle it, others will ignore
-    chrome.tabs.sendMessage(tab.id, { type: 'SET_P0', text }).catch(() => {
-      // Ignore errors for tabs that don't have our content script
+  // Notify open new tabs
+  chrome.tabs.query({}, function(tabs) {
+    tabs.forEach(function(tab) {
+      chrome.tabs.sendMessage(tab.id, { type: 'SET_P0', text: text }).catch(function() {});
     });
   });
 
-  // Update the display and close
-  $current.textContent = `Updated! "${text}"`;
+  $taskText.textContent = text;
+  $taskText.classList.remove('hidden');
+  $emptyText.classList.add('hidden');
+  $clearBtn.classList.remove('hidden');
   $input.value = '';
-
-  // Close the popup after a brief moment
-  setTimeout(() => window.close(), 800);
+  setTimeout(function() { window.close(); }, 600);
 });
 
-// Focus the input on open
+// Clear
+$clearBtn.addEventListener('click', function() {
+  chrome.storage.local.remove(['p0_task', 'p0_date', 'p0_locked', 'p0_bg', 'p0_treatment']);
+  $taskText.textContent = '';
+  $taskText.classList.add('hidden');
+  $emptyText.classList.remove('hidden');
+  $clearBtn.classList.add('hidden');
+});
+
 $input.focus();
-loadCurrent();
