@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>P0</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup">
+    <h2>P0</h2>
+
+    <div id="popup-has-task" class="hidden">
+      <p class="popup-label">Today's Priority</p>
+      <p class="popup-task" id="popup-task-text"></p>
+      <div class="popup-actions">
+        <button id="popup-done-btn" class="btn btn-complete">&#10003; Done</button>
+        <button id="popup-clear-btn" class="btn btn-clear">&times;</button>
+      </div>
+    </div>
+
+    <div id="popup-completed" class="hidden">
+      <p class="popup-done-msg">&#10003; Crushed it!</p>
+    </div>
+
+    <div id="popup-no-task" class="hidden">
+      <form id="popup-form">
+        <input type="text" id="popup-input" placeholder="Your #1 thing today" maxlength="120">
+        <button type="submit" class="btn btn-set">Set P0</button>
+      </form>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
