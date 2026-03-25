@@ -134,7 +134,7 @@ const BACKGROUNDS = [
    Unsplash Integration
    ===================================================================== */
 
-const UNSPLASH_ACCESS_KEY = '';  // Add your Unsplash API key here
+const UNSPLASH_ACCESS_KEY = 'yJM5obsw8eP0N7n_EfJ9STJtsYMKOjIR5b7nknuy5P8';
 let unsplashPhotos = [];
 
 async function fetchUnsplashBatch(count) {
